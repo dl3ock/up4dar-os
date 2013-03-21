@@ -135,7 +135,7 @@ size_t build_position_report(char* buffer, const char** parameters)
   buffer[0] = '/';
   // Time
   memcpy(buffer + 1, parameters[1], 6);
-  buffer[7] = 'z';
+  buffer[7] = 'h';
   // Latitude
   memcpy(buffer + 8, parameters[3], 7);
   buffer[15] = *parameters[4];
