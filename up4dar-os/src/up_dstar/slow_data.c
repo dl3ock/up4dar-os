@@ -1,4 +1,3 @@
-
 /*
 
 Copyright (C) 2013   Michael Dirska, DL1BFF (dl1bff@mdx.de)
@@ -59,7 +58,7 @@ void build_slow_data(uint8_t* buffer, char last, char frame, int duration)
     return;
   }
 
-  if ((frame <= 8) && ((duration % 1260) < 20))  // send tx_msg every 25 sec
+  if ((frame <= 8) && ((duration % 1260) <= 40))  // send tx_msg every 25 sec
   {
     int index = (frame - 1) >> 1;
     if (frame & 1)
