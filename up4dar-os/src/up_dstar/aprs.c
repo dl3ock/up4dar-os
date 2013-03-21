@@ -379,7 +379,7 @@ void aprs_reset()
 void aprs_activate_beacon()
 {
   if ((SETTING_CHAR(C_APRS_BEACON) == 0) ||
-      (SETTING_CHAR(C_DPRS_ENABLED) != 0))
+      (SETTING_CHAR(C_DPRS_ENABLED) == 0))
   {
     timer_set_slot(TIMER_SLOT_APRS_BEACON, 0, NULL);
     return;
