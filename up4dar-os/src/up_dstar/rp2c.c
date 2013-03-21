@@ -24,7 +24,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "settings.h"
 #include "sw_update.h"
-#include "rx_dstar_crc_header.h"
 #include "vdisp.h"
 #include "rtclock.h"
 #include "up_io/eth.h"
@@ -36,6 +35,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "up_sys/timer.h"
 
+#define RP2C_SIGN_SIZE            4
 #define RADIO_HEADER_SIZE         41
 #define VOICE_FRAME_SIZE          12
 
@@ -74,7 +74,7 @@ static uint16_t port;
 
 void build_dstr_header(uint8_t* buffer, const char* sign, int type, int length)
 {
-  memcpy(buffer, sign, 4);
+  memcpy(buffer, sign, RP2C_SIGN_SIZE);
   buffer[4] = number >> 8;
   buffer[5] = number & 0xff;
   buffer[6] = type >> 8;
@@ -126,7 +126,6 @@ void rp2c_send_dv_data(uint16_t session, uint16_t sequence, const char* buffer, 
   memcpy(data, buffer, length);
 
   udp4_calc_chksum_and_send(packet, address);
-
 }
 
 void rp2c_send_keepalive()
@@ -143,12 +142,26 @@ void rp2c_send_keepalive()
   udp4_calc_chksum_and_send(packet, address);
 }
 
-void rp2c_handle_packet(const uint8_t* data, int length, const char* address, uint16_t port)
+void handle_initial_packet(const uint8_t* data, const uint8_t* address, uint16_t port)
 {
   
 }
 
-void rp2c_handle_timer()
+void hadle_data_packet(const uint8_t* data, const uint8_t* address, uint16_t port)
+{
+
+}
+
+void handle_packet(const uint8_t* data, int length, const char* address, uint16_t port)
+{
+  if ((length >= DSTR_HEADER_SIZE) && (memcmp(data, DSTR_INIT_SIGN, RP2C_SIGN_SIZE) == 0))
+    handle_initial_packet(data, address, port);
+  
+  if ((length >= DSTR_HEADER_SIZE) && (memcmp(data, DSTR_DATA_SIGN, RP2C_SIGN_SIZE) == 0))
+    hadle_fata_packet(data, address, port);
+}
+
+void handle_timer()
 {
   
 }
@@ -160,6 +173,6 @@ int rp2c_is_connected()
 
 void rp2c_init()
 {
-  udp4_set_socket(UDP_SOCKET_RP2C, RP2C_UDP_PORT, rp2c_handle_packet);
-  timer_set_slot(TIMER_SLOT_RP2C, RP2C_POLL_INTERVAL, rp2c_handle_timer);
+  udp4_set_socket(UDP_SOCKET_RP2C, RP2C_UDP_PORT, handle_packet);
+  timer_set_slot(TIMER_SLOT_RP2C, RP2C_POLL_INTERVAL, handle_timer);
 }

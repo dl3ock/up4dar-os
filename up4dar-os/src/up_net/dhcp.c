@@ -618,7 +618,7 @@ static int parse_dhcp_options(const uint8_t * data, int data_len, const bootp_he
 
 void dhcp_input_packet (const uint8_t * data, int data_len)
 {
-	if (dhcp_state != DHCP_READY)
+	if (dhcp_state == DHCP_READY)
     return;
 	
 	if (data_len <= (sizeof (bootp_header_t)))

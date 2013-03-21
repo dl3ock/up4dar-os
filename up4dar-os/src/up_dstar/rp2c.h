@@ -23,6 +23,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "FreeRTOS.h"
 #include "gcc_builtin.h"
 
+#define RP2C_NUMBER_LAST_FRAME    0x40
+#define RP2C_NUMBER_RADIO_HEADER  0x80
+#define RP2C_NUMBER_DIGITAL_DATA  0xC0
+#define RP2C_NUMBER_MASK          0x3f
+
 int rp2c_is_connected();
 
 void rp2c_send_heard(const char* call, const char* repeater1);
