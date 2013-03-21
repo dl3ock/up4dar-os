@@ -31,10 +31,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define NTP_PORT                 123
 #define NTP_PACKET_LENGTH        48
 
-#define LOCAL_PORT               udp_socket_ports[UDP_SOCKET_NTP]
 #define ETHERNET_PAYLOAD_OFFSET  42
 
 #define SHOT_COUNT               4
+
+static uint16_t port;
 
 void ntp_handle_packet(const uint8_t* data, int length, const uint8_t* address)
 {
@@ -47,7 +48,7 @@ void ntp_handle_packet(const uint8_t* data, int length, const uint8_t* address)
 
 void query_time(uint8_t* address)
 {
-  eth_txmem_t* packet = udp4_get_packet_mem(NTP_PACKET_LENGTH, LOCAL_PORT, NTP_PORT, address);
+  eth_txmem_t* packet = udp4_get_packet_mem(NTP_PACKET_LENGTH, port, NTP_PORT, address);
 
   if (packet == NULL)
     return;
@@ -65,7 +66,9 @@ void update_time()
   if (!dns_cache_get_address(DNS_CACHE_SLOT_NTP, address))
     return;
 
-  LOCAL_PORT = udp_get_new_srcport();
+  port = udp_get_new_srcport();
+  udp4_set_socket(UDP_SOCKET_NTP, port, ntp_handle_packet);
+
   for (size_t index = 0; index < SHOT_COUNT; index ++)
     query_time(address);
 }

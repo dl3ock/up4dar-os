@@ -117,6 +117,8 @@ void dhcp_init(void)
 	dhcp_state = DHCP_NO_LINK;
 	dhcp_timer = 0;
 	dhcp_T1 = 900; // 15 minutes if not overwritten by DHCPOFFER
+
+  udp4_set_socket(UDP_SOCKET_DHCP, 68, dhcp_input_packet);
 }
 
 
@@ -616,8 +618,8 @@ static int parse_dhcp_options(const uint8_t * data, int data_len, const bootp_he
 
 void dhcp_input_packet (const uint8_t * data, int data_len)
 {
-	
-	
+	if (dhcp_state != DHCP_READY)
+    return;
 	
 	if (data_len <= (sizeof (bootp_header_t)))
 		return; // packet too short

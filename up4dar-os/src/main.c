@@ -54,6 +54,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "up_net/snmp.h"
 #include "up_net/snmp_data.h"
+#include "up_net/snmp_io.h"
 
 #include "up_net/ipv4.h"
 
@@ -1061,7 +1062,8 @@ int main (void)
 	
 	
 	crypto_init(& microphone);
-	
+
+  snmp_io_init();
 	dns_init();
 	
 	if (eth_txmem_init() != 0)

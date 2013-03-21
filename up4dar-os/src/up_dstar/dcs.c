@@ -190,7 +190,7 @@ void dcs_set_dns_name()
 void dcs_set_source_port()
 {
   dcs_udp_local_port = (current_server_type == SERVER_TYPE_DEXTRA) ? DEXTRA_UDP_PORT : udp_get_new_srcport();
-  udp_socket_ports[UDP_SOCKET_DCS] = dcs_udp_local_port;
+  udp4_set_socket(UDP_SOCKET_DCS, dcs_udp_local_port, dcs_input_packet);
 }
 
 void dcs_service()
@@ -208,7 +208,7 @@ void dcs_service()
 
       dcs_timeout_timer = 2; // 1 second
       dcs_state = DCS_WAIT;
-      udp_socket_ports[UDP_SOCKET_DCS] = 0; // stop receiving frames
+      udp4_set_socket(UDP_SOCKET_DCS, 0, NULL); // stop receiving frames
       vd_prints_xy(VDISP_DEBUG_LAYER, 104, 8, VDISP_FONT_6x8, 0, "NOWD");
       break;
 
@@ -228,7 +228,7 @@ void dcs_service()
 
       dcs_timeout_timer = 20; // 10 seconds
       dcs_state = DCS_WAIT;
-      udp_socket_ports[UDP_SOCKET_DCS] = 0; // stop receiving frames
+      udp4_set_socket(UDP_SOCKET_DCS, 0, NULL); // stop receiving frames
       vd_prints_xy(VDISP_DEBUG_LAYER, 104, 8, VDISP_FONT_6x8, 0, "RQTO");
       break;
 
@@ -247,7 +247,7 @@ void dcs_service()
       }
 
       dcs_state = DCS_DISCONNECTED;
-      udp_socket_ports[UDP_SOCKET_DCS] = 0; // stop receiving frames
+      udp4_set_socket(UDP_SOCKET_DCS, 0, NULL); // stop receiving frames
       break;
 
     case DCS_DNS_REQ:
@@ -341,7 +341,7 @@ void dcs_off()
 
     default:
       dcs_state = DCS_DISCONNECTED;
-      udp_socket_ports[UDP_SOCKET_DCS] = 0; // stop receiving frames
+      udp4_set_socket(UDP_SOCKET_DCS, 0, NULL); // stop receiving frames
       break;
   }
 }
