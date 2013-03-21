@@ -31,8 +31,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define NTP_PORT                 123
 #define NTP_PACKET_LENGTH        48
 
-#define ETHERNET_PAYLOAD_OFFSET  42
-
 #define SHOT_COUNT               4
 
 static uint16_t port;
@@ -53,7 +51,7 @@ void query_time(uint8_t* address)
   if (packet == NULL)
     return;
 
-  uint8_t* data = packet->data + ETHERNET_PAYLOAD_OFFSET;
+  uint8_t* data = packet->data + UDP_PAYLOAD_OFFSET;
   memset(data, 0, NTP_PACKET_LENGTH);
   data[0] = (4 << 3) | 3;
 

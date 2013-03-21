@@ -31,6 +31,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "snmp.h"
 
+#define SNMP_PORT  161
+
 void snmp_handle_packet(const uint8_t* data, int len, const uint8_t * address, uint16_t src_port, uint16_t dest_port)
 {
   int data_length = 0;
@@ -52,5 +54,5 @@ void snmp_handle_packet(const uint8_t* data, int len, const uint8_t * address, u
 
 void snmp_io_init()
 {
-  udp4_set_socket(UDP_SOCKET_SNMP, 161, snmp_handle_packet);
+  udp4_set_socket(UDP_SOCKET_SNMP, SNMP_PORT, snmp_handle_packet);
 }

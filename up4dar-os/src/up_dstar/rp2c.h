@@ -17,23 +17,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#ifndef TIMER_H
-#define TIMER_H
+#ifndef RP2C_H
+#define RO2C_H
 
 #include "FreeRTOS.h"
 #include "gcc_builtin.h"
 
-#define TIMER_SLOT_DNS_CACHE    0
-#define TIMER_SLOT_APRS_BEACON  1
-#define TIMER_SLOT_RP2C         2
+int rp2c_is_connected();
 
-#define TIMER_SLOT_COUNT        3
+void rp2c_send_heard(const char* call, const char* repeater1);
+void rp2c_send_dv_data(uint16_t session, uint16_t sequence, const char* buffer, int length);
+// Note: Gateway software determines type of DV data (radio header of frame) by the sequence number and length
 
-typedef void (*timer_handler)(int slot);
-
-int timer_get_timeout(int slot);
-void timer_set_slot(int slot, int interval, timer_handler callback);
-
-void timer_init();
+void rp2c_init();
 
 #endif

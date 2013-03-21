@@ -60,7 +60,7 @@ static int dhcp_state;
 
 #define DHCP_READY		10
 
-
+#define DHCP_PORT  68
 
 
 #define DHCP_TIMEOUT_TIMER_MAX		86400 
@@ -118,7 +118,7 @@ void dhcp_init(void)
 	dhcp_timer = 0;
 	dhcp_T1 = 900; // 15 minutes if not overwritten by DHCPOFFER
 
-  udp4_set_socket(UDP_SOCKET_DHCP, 68, dhcp_input_packet);
+  udp4_set_socket(UDP_SOCKET_DHCP, DHCP_PORT, dhcp_input_packet);
 }
 
 

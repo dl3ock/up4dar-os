@@ -85,7 +85,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define SERVER_TYPE_TST             1
 #define SERVER_TYPE_DEXTRA          2
 
-#define ETHERNET_PAYLOAD_OFFSET     42  // Skip IP + UDP headers
+#define UDP_PAYLOAD_OFFSET     42  // Skip IP + UDP headers
 
 const char dcs_html_info[] =
   "<table border=\"0\" width=\"95%\"><tr>"
@@ -466,7 +466,7 @@ void dcs_link_to(char module)
   vd_prints_xy(VDISP_DEBUG_LAYER, 86, 0, VDISP_FONT_6x8, 1, buf);
   vd_prints_xy(VDISP_DEBUG_LAYER, 104, 8, VDISP_FONT_6x8, 0, "    ");
 
-  uint8_t* d = packet->data + ETHERNET_PAYLOAD_OFFSET;
+  uint8_t* d = packet->data + UDP_PAYLOAD_OFFSET;
 
   memcpy(d, settings.s.my_callsign, 7);
   d[7] = ' ';
@@ -493,7 +493,7 @@ void dcs_keepalive_response(int request_size)
   if (packet == NULL)
     return;
 
-  uint8_t* d = packet->data + ETHERNET_PAYLOAD_OFFSET;
+  uint8_t* d = packet->data + UDP_PAYLOAD_OFFSET;
 
   memcpy (d, settings.s.my_callsign, 7);
 
@@ -527,7 +527,7 @@ void send_xcs(int session_id, char last_frame, char frame_counter)
   if (packet == NULL)
     return;
 
-  uint8_t * d = packet->data + ETHERNET_PAYLOAD_OFFSET;
+  uint8_t * d = packet->data + UDP_PAYLOAD_OFFSET;
 
   memcpy(d, "0001", 4);
 
@@ -573,7 +573,7 @@ void send_dextra_header(int session_id)
   if (packet == NULL)
     return;
 
-  uint8_t* d = packet->data + ETHERNET_PAYLOAD_OFFSET;
+  uint8_t* d = packet->data + UDP_PAYLOAD_OFFSET;
 
   // DSVT Header, 8 bytes
   memcpy(d, "DSVT", 4);
@@ -619,7 +619,7 @@ void send_dextra_frame(int session_id, char last_frame, char frame_counter)
   if (packet == NULL)
     return;
 
-  uint8_t* d = packet->data + ETHERNET_PAYLOAD_OFFSET;
+  uint8_t* d = packet->data + UDP_PAYLOAD_OFFSET;
 
   // DSVT Header, 8 bytes
   memcpy(d, "DSVT", 4);

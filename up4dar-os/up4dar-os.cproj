@@ -431,6 +431,12 @@
     <Compile Include="src\up_dstar\phycomm.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="src\up_dstar\rp2c.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\up_dstar\rp2c.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="src\up_dstar\rtclock.c">
       <SubType>compile</SubType>
     </Compile>
