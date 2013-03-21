@@ -322,7 +322,7 @@ void calculate_aprs_password(char* password)
 void send_network_report()
 {
   uint8_t address[4];
-  if ((dhcp_is_ready() != 0) && 
+  if ((dhcp_is_ready() != 0) &&
       (dns_cache_get_address(DNS_CACHE_SLOT_APRS, address) != 0) &&
       (xSemaphoreTake(lock, portMAX_DELAY) == pdTRUE))
   {
@@ -378,7 +378,7 @@ void aprs_reset()
 void aprs_activate_beacon()
 {
   if ((SETTING_CHAR(C_APRS_BEACON) == 0) ||
-      (SETTING_CHAR(C_DPRS_ENABLED) != 0))
+      (SETTING_CHAR(C_DPRS_ENABLED) == 0))
   {
     timer_set_slot(TIMER_SLOT_APRS_BEACON, 0, NULL);
     return;

@@ -32,8 +32,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "up_net/ipv4.h"
 #include "up_net/dhcp.h"
 #include "up_net/dns_cache.h"
+#include "up_net/syslog.h"
 
 #include "up_sys/timer.h"
+
+#define RP2C_POLL_INTERVAL        15
+#define RP2C_DATA_TIMEOUT         60
 
 #define RP2C_SIGN_SIZE            4
 #define RADIO_HEADER_SIZE         41
@@ -65,8 +69,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #define DSTR_HEADER_SIZE          10
 
-static int timeout1;
-static int timeout2;
+static unsigned long time1;
+static unsigned long time2;
 static uint16_t number;
 
 static uint8_t address[4];
@@ -92,6 +96,18 @@ void build_trunk_header(uint8_t* buffer, const char* type, uint16_t session, uin
   buffer[6] = sequence;
 }
 
+void rp2c_confirm_packet(const char* sign)
+{
+  eth_txmem_t * packet = udp4_get_packet_mem(DSTR_HEADER_SIZE, RP2C_UDP_PORT, port, address);
+
+  if (packet == NULL)
+    return;
+
+  uint8_t* data = packet->data + UDP_PAYLOAD_OFFSET;
+  build_dstr_header(data, sign, DSTR_TYPE_ACK, 0);
+  udp4_calc_chksum_and_send(packet, address);
+}
+
 void rp2c_send_heard(const char* call, const char* repeater1)
 {
   eth_txmem_t * packet = udp4_get_packet_mem(DSTR_HEADER_SIZE + 2 * CALLSIGN_LENGTH, RP2C_UDP_PORT, port, address);
@@ -101,7 +117,7 @@ void rp2c_send_heard(const char* call, const char* repeater1)
 
   uint8_t* data = packet->data + UDP_PAYLOAD_OFFSET;
 
-  build_dstr_header(data, DSTR_DATA_SIGN, DSTR_TYPE_LAST_HEARD, 0);
+  build_dstr_header(data, DSTR_DATA_SIGN, DSTR_TYPE_LAST_HEARD, 2 * CALLSIGN_LENGTH);
   data += DSTR_HEADER_SIZE;
   memcpy(data, call, CALLSIGN_LENGTH);
   data += CALLSIGN_LENGTH;
@@ -142,13 +158,49 @@ void rp2c_send_keepalive()
   udp4_calc_chksum_and_send(packet, address);
 }
 
-void handle_initial_packet(const uint8_t* data, const uint8_t* address, uint16_t port)
+void handle_initial_packet(const uint8_t* data, const uint8_t* remote, uint16_t source)
 {
-  
+  int type = (data[6] << 8) | data[7];
+
+  if ((type == DSTR_TYPE_POLL) && (the_clock > time1))
+  {
+    port = source;
+    memcpy(address, remote, sizeof(address));
+
+    rp2c_confirm_packet(DSTR_INIT_SIGN);
+
+    number = (data[4] << 8) | data[5];
+    number ++;
+
+    time1 = the_clock + RP2C_POLL_INTERVAL;
+    time2 = the_clock + RP2C_DATA_TIMEOUT;
+
+    syslog(LOG_DAEMON, LOG_INFO, "RP2C: connected to gateway");
+  }
 }
 
 void hadle_data_packet(const uint8_t* data, const uint8_t* address, uint16_t port)
 {
+  int type = (data[6] << 8) | data[7];
+
+  if (type & DSTR_CLASS_SENT)
+  {
+    rp2c_confirm_packet(DSTR_DATA_SIGN);
+
+    number = (data[4] << 8) | data[5];
+    number ++;
+  }
+
+  switch (type)
+  {
+    case DSTR_TYPE_ACK:
+      time2 = the_clock + RP2C_DATA_TIMEOUT;
+      break;
+
+    case DSTR_TYPE_DIGITAL_VOICE:
+      // Handle DV data
+      break;
+  }
 
 }
 
@@ -158,21 +210,30 @@ void handle_packet(const uint8_t* data, int length, const char* address, uint16_
     handle_initial_packet(data, address, port);
   
   if ((length >= DSTR_HEADER_SIZE) && (memcmp(data, DSTR_DATA_SIGN, RP2C_SIGN_SIZE) == 0))
-    hadle_fata_packet(data, address, port);
-}
-
-void handle_timer()
-{
-  
+    hadle_data_packet(data, address, port);
 }
 
 int rp2c_is_connected()
 {
-  return 0;
+  return (time1 != 0);
+}
+
+void handle_timer()
+{
+  if ((the_clock > time1) && (the_clock < time2))
+  {
+    rp2c_send_keepalive();
+    time1 = the_clock + RP2C_POLL_INTERVAL;
+  }
+  if ((the_clock >= time2) && (time1 != 0))
+  {
+    syslog(LOG_DAEMON, LOG_ERR, "RP2C: connection timed out");
+    time1 = 0;
+  }
 }
 
 void rp2c_init()
 {
   udp4_set_socket(UDP_SOCKET_RP2C, RP2C_UDP_PORT, handle_packet);
-  timer_set_slot(TIMER_SLOT_RP2C, RP2C_POLL_INTERVAL, handle_timer);
+  timer_set_slot(TIMER_SLOT_RP2C, RP2C_POLL_INTERVAL * 1000, handle_timer);
 }
