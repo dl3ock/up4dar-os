@@ -254,7 +254,7 @@ void process_position_fix_data(const char** parameters)
 void aprs_process_gps_data(const char** parameters, size_t count)
 {
   if ((count >= 12) &&
-      (memcmp(parameters[0], "GPRMC", 6) == 0) &&
+      (memcmp(parameters[0]+2, "RMC", 4) == 0) &&
       (*parameters[2] == 'A') &&
       (xSemaphoreTake(lock, portMAX_DELAY) == pdTRUE))
   {
@@ -264,7 +264,7 @@ void aprs_process_gps_data(const char** parameters, size_t count)
     return;
   }
   if ((count >= 15) &&
-      (memcmp(parameters[0], "GPGGA", 6) == 0) &&
+      (memcmp(parameters[0]+2, "GGA", 4) == 0) &&
       (*parameters[6] != '0') &&
       (xSemaphoreTake(lock, portMAX_DELAY) == pdTRUE))
   {
