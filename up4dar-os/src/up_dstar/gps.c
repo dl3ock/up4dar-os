@@ -563,7 +563,7 @@ static void gps_parse_nmea(void)
 			recv_gpgsa();
 		}			
 	}
-	else if (memcmp(nmea_params[0], "GPRMC", 6) == 0)
+	else if (memcmp(nmea_params[0] + 2, "RMC", 4) == 0)
 	{
 		if (num_params == 13) // ?? R3ABM: SHould be 12 ps. Is it mistake?
 		{
@@ -591,7 +591,7 @@ static void gps_parse_nmea(void)
 		}			
 		aprs_process_gps_data(nmea_params, num_params);
 	}
-	else if (memcmp(nmea_params[0], "GPGGA", 6) == 0)
+	else if (memcmp(nmea_params[0] + 2, "GGA", 4) == 0)
 	{
 		if (num_params == 15)
 		{
