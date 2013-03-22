@@ -67,6 +67,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define DSTR_TYPE_DIGITAL_VOICE   (DSTR_CLASS_SENT | DSTR_CLASS_DIGITAL_VOICE | DSTR_CLASS_TRANSMISSION)
 #define DSTR_TYPE_LAST_HEARD      (DSTR_CLASS_SENT | DSTR_CLASS_DIGITAL_VOICE | DSTR_CLASS_LAST_HEARD)
 
+#define DSTR_FLAG_SENT            (DSTR_CLASS_SENT ^ DSTR_CLASS_REPLIED)
+
 #define DSTR_HEADER_SIZE          10
 
 static unsigned long time1;
@@ -183,7 +185,7 @@ void hadle_data_packet(const uint8_t* data, const uint8_t* address, uint16_t por
 {
   int type = (data[6] << 8) | data[7];
 
-  if (type & DSTR_CLASS_SENT)
+  if (type & DSTR_FLAG_SENT)
   {
     rp2c_confirm_packet(DSTR_DATA_SIGN);
 
@@ -208,7 +210,7 @@ void handle_packet(const uint8_t* data, int length, const char* address, uint16_
 {
   if ((length >= DSTR_HEADER_SIZE) && (memcmp(data, DSTR_INIT_SIGN, RP2C_SIGN_SIZE) == 0))
     handle_initial_packet(data, address, port);
-  
+
   if ((length >= DSTR_HEADER_SIZE) && (memcmp(data, DSTR_DATA_SIGN, RP2C_SIGN_SIZE) == 0))
     hadle_data_packet(data, address, port);
 }
@@ -235,5 +237,5 @@ void handle_timer()
 void rp2c_init()
 {
   udp4_set_socket(UDP_SOCKET_RP2C, RP2C_UDP_PORT, handle_packet);
-  timer_set_slot(TIMER_SLOT_RP2C, RP2C_POLL_INTERVAL * 1000, handle_timer);
+  timer_set_slot(TIMER_SLOT_RP2C, 1000, handle_timer);
 }

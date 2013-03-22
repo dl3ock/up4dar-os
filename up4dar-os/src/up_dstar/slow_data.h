@@ -26,6 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "FreeRTOS.h"
 
 uint8_t get_slow_data_chunk(uint8_t* data);
-void build_slow_data(uint8_t* buffer, char last, char frame, int duration);
+void get_slow_data_block(uint8_t* data, uint8_t frame, size_t duration);
+void build_slow_data(uint8_t* data, char last, uint8_t frame, size_t duration);
 
 #endif

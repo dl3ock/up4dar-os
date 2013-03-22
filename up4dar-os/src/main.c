@@ -197,7 +197,7 @@ static char send_data [ 4];
 // static const char MY2[5]  = "    ";
 
 // static int phy_frame_counter = 0;
-static int txmsg_counter = 0;
+static int tx_counter = 0;
 
 static const char direct_callsign[8] = "DIRECT  ";
 
@@ -263,15 +263,9 @@ static void phy_start_tx(void)
 	send_cmd(header, 40);
 	
 	// phy_frame_counter = 0;
-	txmsg_counter = 0;
+	tx_counter = 0;
 }
 
-
-static int slow_data_count;
-static uint8_t slow_data[5];
-
-// const char dstar_tx_msg[20] = "Michael, Berlin, D23";
-// --------------------------- 12345678901234567890
 
 static void send_phy ( const unsigned char * d, char phy_frame_counter )
 {
@@ -284,82 +278,13 @@ static void send_phy ( const unsigned char * d, char phy_frame_counter )
 	if (phy_frame_counter > 0)
 	{
 		send_data[0] = 0x22;
-		// Next code should be replaced with this line:
-		// build_slow_data(send_data + 1, 0, phy_frame_counter, tx_counter)
-		
-		if ((txmsg_counter == 0) && (phy_frame_counter >= 1) && (phy_frame_counter <= 8))
-		{
-			int i = (phy_frame_counter - 1) >> 1;
-			if (phy_frame_counter & 1)
-			{
-				send_data[1] = 0x40 + i;
-				send_data[2] = settings.s.txmsg[ i * 5 + 0 ];
-				send_data[3] = settings.s.txmsg[ i * 5 + 1 ];
-			}
-			else
-			{
-				send_data[1] = settings.s.txmsg[ i * 5 + 2 ];
-				send_data[2] = settings.s.txmsg[ i * 5 + 3 ];
-				send_data[3] = settings.s.txmsg[ i * 5 + 4 ];
-			}
-		}
-		else
-		{
-				if (phy_frame_counter & 1)
-				{
-					slow_data_count = get_slow_data_chunk(slow_data);
-					
-					if (slow_data_count == 0)
-					{
-						send_data[1] = 0x66;
-						send_data[2] = 0x66;
-						send_data[3] = 0x66;
-					}
-					else
-					{
-						send_data[1] = (0x30 + slow_data_count);
-						send_data[2] = slow_data[ 0 ];
-						send_data[3] = slow_data[ 1 ];
-					}
-				}
-				else
-				{
-					if (slow_data_count <= 2)
-					{
-						send_data[1] = 0x66;
-						send_data[2] = 0x66;
-						send_data[3] = 0x66;
-					}
-					else
-					{
-						send_data[1] = slow_data[ 2 ];
-						send_data[2] = slow_data[ 3 ];
-						send_data[3] = slow_data[ 4 ];
-					}
-				}
-			
-		}
-		
+		get_slow_data_block(send_data + 1, phy_frame_counter, tx_counter);
 		send_cmd(send_data, 4);
 	}
 	
-	// phy_frame_counter++;
-	
-	if (phy_frame_counter >= 20)
-	{
-		// phy_frame_counter = 0;
-		txmsg_counter ++;
-		if (txmsg_counter >= 60)
-		{
-			txmsg_counter = 0;
-		}
-	}		
+	tx_counter ++;
 }	
 	
-
-
-
-
 
 
 #define NUMBER_OF_KEYS  6
