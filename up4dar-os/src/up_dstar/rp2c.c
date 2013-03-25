@@ -17,7 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#include "aprs.h"
+#include "rp2c.h"
 
 #include "queue.h"
 #include "semphr.h"
@@ -40,13 +40,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define RP2C_DATA_TIMEOUT         60
 
 #define RP2C_SIGN_SIZE            4
+#define TRUNK_HEADER_SIZE         7
 #define RADIO_HEADER_SIZE         41
 #define VOICE_FRAME_SIZE          12
 
 #define RP2C_TYPE_DIGITAL_VOICE   0x20
 #define RP2C_TYPE_DIGITAL_DATA    0x40
-
-#define TRUNK_HEADER_SIZE         7
 
 #define RP2C_UDP_PORT             20000
 #define RP2C_POLL_INTERVAL        200
@@ -133,7 +132,7 @@ void rp2c_send_dv_data(uint16_t session, uint16_t sequence, const char* buffer, 
   eth_txmem_t * packet = udp4_get_packet_mem(DSTR_HEADER_SIZE + TRUNK_HEADER_SIZE + length, RP2C_UDP_PORT, port, address);
 
   if (packet == NULL)
-  return;
+    return;
 
   uint8_t* data = packet->data + UDP_PAYLOAD_OFFSET;
 
@@ -160,6 +159,16 @@ void rp2c_send_keepalive()
   udp4_calc_chksum_and_send(packet, address);
 }
 
+void handle_radio_header(uint16_t session, const uint8_t* data)
+{
+  // TODO: implement DV radio header handling
+}
+
+void handle_voice_frame(uint16_t session, uint8_t sequence, const uint8_t* data)
+{
+  // TODO: implement DV voice frame handling
+}
+
 void handle_initial_packet(const uint8_t* data, const uint8_t* remote, uint16_t source)
 {
   int type = (data[6] << 8) | data[7];
@@ -181,7 +190,7 @@ void handle_initial_packet(const uint8_t* data, const uint8_t* remote, uint16_t 
   }
 }
 
-void hadle_data_packet(const uint8_t* data, const uint8_t* address, uint16_t port)
+void hadle_data_packet(const uint8_t* data, uint16_t length, const uint8_t* address, uint16_t port)
 {
   int type = (data[6] << 8) | data[7];
 
@@ -191,6 +200,8 @@ void hadle_data_packet(const uint8_t* data, const uint8_t* address, uint16_t por
 
     number = (data[4] << 8) | data[5];
     number ++;
+
+    time2 = the_clock + RP2C_DATA_TIMEOUT;
   }
 
   switch (type)
@@ -200,7 +211,19 @@ void hadle_data_packet(const uint8_t* data, const uint8_t* address, uint16_t por
       break;
 
     case DSTR_TYPE_DIGITAL_VOICE:
-      // Handle DV data
+      if ((length == (DSTR_HEADER_SIZE + TRUNK_HEADER_SIZE + RADIO_HEADER_SIZE)) &&
+          (data[DSTR_HEADER_SIZE + 6] == RP2C_NUMBER_RADIO_HEADER))
+      {
+        uint16_t session = (data[DSTR_HEADER_SIZE + 4] << 8) | data[DSTR_HEADER_SIZE + 5];
+        handle_radio_header(session, data + DSTR_HEADER_SIZE + TRUNK_HEADER_SIZE);
+        break;
+      }
+      if (length == (DSTR_HEADER_SIZE + TRUNK_HEADER_SIZE + VOICE_FRAME_SIZE))
+      {
+        uint16_t session = (data[DSTR_HEADER_SIZE + 4] << 8) | data[DSTR_HEADER_SIZE + 5];
+        handle_voice_frame(session, data[DSTR_HEADER_SIZE + 6], data + DSTR_HEADER_SIZE + TRUNK_HEADER_SIZE);
+        break;
+      }
       break;
   }
 
@@ -212,7 +235,7 @@ void handle_packet(const uint8_t* data, int length, const char* address, uint16_
     handle_initial_packet(data, address, port);
 
   if ((length >= DSTR_HEADER_SIZE) && (memcmp(data, DSTR_DATA_SIGN, RP2C_SIGN_SIZE) == 0))
-    hadle_data_packet(data, address, port);
+    hadle_data_packet(data, length, address, port);
 }
 
 int rp2c_is_connected()
