@@ -441,16 +441,15 @@ void copy_html_info(char* buffer)
   memcpy(buffer, dcs_html_info, sizeof(dcs_html_info));
 
   for (size_t index = 0; index < sizeof(dcs_html_info) - 11; index ++)
-  {
     if (buffer[index] == 'X')  // look for 'X'
     {
       // replace  X.0.00.00  with current software version
       version2string(buffer + index, software_version);
-      buffer[index + strlen(buffer + index)] = ' ';
-	  buffer[index + 10] = ' ';
+      for ( ; buffer[index] != '<'; index ++)
+        if (buffer[index] < ' ')
+          buffer[index] = ' ';
       break;
     }
-  }
 }
 
 void dcs_link_to(char module)
