@@ -47,7 +47,4 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define SWVER_BYTE3		31
 
 
-=======
-
-
 #endif /* SOFTWARE_VERSION_H_ */
