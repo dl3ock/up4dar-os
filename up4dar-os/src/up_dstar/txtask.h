@@ -15,26 +15,23 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+
 */
 
+
 /*
- * lcd.h
+ * txtask.h
  *
- * Created: 26.05.2012 16:39:17
+ * Created: 30.03.2013 06:52:56
  *  Author: mdirska
  */ 
 
 
-#ifndef LCD_H_
-#define LCD_H_
+#ifndef TXTASK_H_
+#define TXTASK_H_
 
-extern char lcd_current_layer;
-extern char lcd_update_screen;
 
-void lcd_init(void);
-void lcd_show_layer (int layer);
-void lcd_set_backlight (int v);
-void lcd_set_contrast (int v);
-void lcd_show_help_layer(int help_layer);
+void txtask_init( ambe_q_t * mic );
 
-#endif /* LCD_H_ */
+
+#endif /* TXTASK_H_ */

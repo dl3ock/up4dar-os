@@ -83,6 +83,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "software_version.h"
 #include "up_dstar/sw_update.h"
 #include "up_crypto/up_crypto.h"
+#include "up_dstar/txtask.h"
 
 #include "up_dstar/slow_data.h"
 
@@ -97,7 +98,7 @@ U32 errorCounter = 0;
 audio_q_t  audio_tx_q;
 audio_q_t  audio_rx_q;
 
-ambe_q_t microphone;
+static ambe_q_t microphone;
 
 static int32_t voltage = 0;
 
@@ -152,6 +153,7 @@ static void set_pwm(void)
 
 */
 
+/*
 #define DLE 0x10
 #define STX 0x02
 #define ETX 0x03
@@ -183,12 +185,13 @@ static void send_cmd(const char* Befehl, const short size){
 	phyCommSend(buf, ind);
 }
 
+*/
 
 static const char tx_on[1] = {0x10};
-static char header[40];
+//static char header[40];
 
-static char send_voice[11];
-static char send_data [ 4];
+//static char send_voice[11];
+//static char send_data [ 4];
 
 // static const char YOUR[9] = "CQCQCQ  ";
 // static const char RPT2[9] = "DB0DF  G";
@@ -197,10 +200,15 @@ static char send_data [ 4];
 // static const char MY2[5]  = "    ";
 
 // static int phy_frame_counter = 0;
+<<<<<<< HEAD
 static int tx_counter = 0;
+=======
+//static int txmsg_counter = 0;
+>>>>>>> 912507ccf0bd075faabbf3c2953354c89a6c2d4b
 
 static const char direct_callsign[8] = "DIRECT  ";
 
+/*
 static void phy_start_tx(void)
 {
 
@@ -255,7 +263,11 @@ static void phy_start_tx(void)
 	}
 	
 	// Bis zu 70ms kann man sich Zeit lassen, bevor die Header-Daten uebergeben werden.
+<<<<<<< HEAD
 	// Die genaue Wartezeit ist natruerlich von TX-DELAY abh‰ngig.
+=======
+	// Die genaue Wartezeit ist natruerlich von TX-DELAY abhaengig.
+>>>>>>> 912507ccf0bd075faabbf3c2953354c89a6c2d4b
 	//usleep(70000);
 	
 	// vTaskDelay (50); // 50ms
@@ -265,14 +277,28 @@ static void phy_start_tx(void)
 	// phy_frame_counter = 0;
 	tx_counter = 0;
 }
+*/
 
+<<<<<<< HEAD
 
+=======
+//static int slow_data_count;
+//static uint8_t slow_data[5];
+
+// const char dstar_tx_msg[20] = "Michael, Berlin, D23";
+// --------------------------- 12345678901234567890
+/*
+>>>>>>> 912507ccf0bd075faabbf3c2953354c89a6c2d4b
 static void send_phy ( const unsigned char * d, char phy_frame_counter )
 {
 	send_voice[0] = 0x21;
 	send_voice[1] = 0x01;
+	
 	for (short k=0; k<9; ++k)
+	{
 		send_voice[2+k] = d[k];
+	}
+			
 	send_cmd(send_voice, 11);
 
 	if (phy_frame_counter > 0)
@@ -287,6 +313,13 @@ static void send_phy ( const unsigned char * d, char phy_frame_counter )
 	
 
 
+<<<<<<< HEAD
+=======
+*/
+
+
+
+>>>>>>> 912507ccf0bd075faabbf3c2953354c89a6c2d4b
 #define NUMBER_OF_KEYS  6
 
 static short touchKeyCounter[NUMBER_OF_KEYS] = { 0,0,0,0,0,0 };
@@ -414,7 +447,7 @@ static void vButtonTask( void *pvParameters )
 }
 		
 		
-		
+/*
 
 static void set_phy_parameters(void)
 {
@@ -433,7 +466,7 @@ static void set_phy_parameters(void)
 	value = SETTING_SHORT(S_PHY_LENGTHOFVW) & 0xFF;
 	snmp_set_phy_sysparam(6, &value, 1);
 }
-
+*/
 
 static int initialHeapSize;
 		
@@ -474,7 +507,8 @@ static void vServiceTask( void *pvParameters )
 		vd_prints_xy(VDISP_DEBUG_LAYER, 108, 28, VDISP_FONT_4x6, 0, tmp_buf );
 		vdisp_i2s( tmp_buf, 5, 10, 0, serial_rx_ok );
 		vd_prints_xy(VDISP_DEBUG_LAYER, 108, 34, VDISP_FONT_4x6, 0, tmp_buf );	
-		vdisp_i2s( tmp_buf, 5, 10, 0, serial_timeout_error );
+		// vdisp_i2s( tmp_buf, 5, 10, 0, serial_timeout_error );
+		vdisp_i2s( tmp_buf, 5, 10, 0, dstar_pos_not_correct );
 		vd_prints_xy(VDISP_DEBUG_LAYER, 108, 40, VDISP_FONT_4x6, 0, tmp_buf );
 		vdisp_i2s( tmp_buf, 5, 10, 0, serial_putc_q_full );
 		vd_prints_xy(VDISP_DEBUG_LAYER, 108, 46, VDISP_FONT_4x6, 0, tmp_buf );
@@ -602,8 +636,9 @@ static void vServiceTask( void *pvParameters )
 		
 			if (dcs_mode != last_dcs_mode)
 			{
-				vdisp_clear_rect(0,0,128,64);
+				// vdisp_clear_rect(0,0,128,64);
 			
+				/*
 				if (dcs_mode != 0)
 				{
 					dstarChangeMode(1); // Service mode
@@ -614,6 +649,7 @@ static void vServiceTask( void *pvParameters )
 					set_phy_parameters();
 					dstarChangeMode(2); // single user mode
 				}
+				*/
 			
 				last_dcs_mode = dcs_mode;
 			}
@@ -662,7 +698,7 @@ static void vRXTXEthTask( void *pvParameters )
 
 
 
-
+/*
 
 
 static void vTXTask( void *pvParameters )
@@ -727,8 +763,11 @@ static void vTXTask( void *pvParameters )
 				
 				rtclock_reset_tx_ticks();
 				curr_tx_ticks = 0;
+<<<<<<< HEAD
 				
 				aprs_reset();
+=======
+>>>>>>> 912507ccf0bd075faabbf3c2953354c89a6c2d4b
 			}
 			else
 			{
@@ -772,8 +811,18 @@ static void vTXTask( void *pvParameters )
 					else
 					{
 						send_phy ( dcs_ambe_data, frame_counter );
-					}						
+					}		
 					
+					curr_tx_ticks += 20; // send AMBE data every 20ms			
+					
+					long tdiff = curr_tx_ticks - rtclock_get_tx_ticks();
+					
+					if (tdiff > 0)
+					{
+						vTaskDelay(tdiff); 
+					}
+					
+<<<<<<< HEAD
 					curr_tx_ticks += 20; // send AMBE data every 20ms
 					
 					long tdiff = curr_tx_ticks - rtclock_get_tx_ticks();
@@ -783,6 +832,8 @@ static void vTXTask( void *pvParameters )
 						vTaskDelay(tdiff);
 					}
 					
+=======
+>>>>>>> 912507ccf0bd075faabbf3c2953354c89a6c2d4b
 				}
 			}
 			break;
@@ -859,7 +910,7 @@ static void vTXTask( void *pvParameters )
 	}		
 	
 }	
-
+*/
 
 static xQueueHandle dstarQueue;
 
@@ -988,7 +1039,9 @@ int main (void)
 	
 	wm8510Init( & audio_tx_q, & audio_rx_q );
 	
-	xTaskCreate( vTXTask, (signed char *) "TX", 300, ( void * ) 0, standard_TASK_PRIORITY, ( xTaskHandle * ) NULL );
+	txtask_init( & microphone );
+	
+	// xTaskCreate( vTXTask, (signed char *) "TX", 300, ( void * ) 0, standard_TASK_PRIORITY, ( xTaskHandle * ) NULL );
 
 
 	gps_init( externalComPort );

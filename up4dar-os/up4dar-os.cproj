@@ -272,6 +272,7 @@
 "$(ToolchainDir)\dd" status=noxfer if="$(OutputDirectory)\$(OutputFileName).bin1" of="$(OutputDirectory)\$(OutputFileName).bin2" bs=512 skip=40 cbs=512 conv=sync
 "$(ToolchainDir)\sha1sum" "$(OutputDirectory)\$(OutputFileName).bin2" | "$(ToolchainDir)\dd" status=noxfer of="$(OutputDirectory)\$(OutputFileName).sha1sum" bs=512 cbs=512 conv=sync
 "$(ToolchainDir)\cat" "$(OutputDirectory)\$(OutputFileName).bin2" "$(OutputDirectory)\$(OutputFileName).sha1sum" &gt; "$(OutputDirectory)\$(OutputFileName).bin"
+<<<<<<< HEAD
 </PostBuildEvent>
   </PropertyGroup>
   <ItemGroup>
@@ -713,4 +714,404 @@
     <Folder Include="src\up_io" />
   </ItemGroup>
   <Import Project="$(AVRSTUDIO_EXE_PATH)\\Vs\\AvrGCC32.targets" />
+=======
+</PostBuildEvent>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="src\asf.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\asf\avr32\drivers\cpu\cycle_counter\cycle_counter.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\asf\avr32\drivers\flashc\flashc.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\asf\avr32\drivers\flashc\flashc.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\asf\avr32\drivers\gpio\gpio.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\asf\avr32\drivers\gpio\gpio.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\asf\avr32\drivers\intc\exception.S">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\asf\avr32\drivers\intc\intc.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\asf\avr32\drivers\intc\intc.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\asf\avr32\drivers\pm\pm.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\asf\avr32\drivers\pm\pm.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\asf\avr32\drivers\pm\pm_conf_clocks.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\asf\avr32\drivers\pm\power_clocks_lib.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\asf\avr32\drivers\pm\power_clocks_lib.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\asf\avr32\drivers\pm\sleep.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\asf\avr32\drivers\tc\tc.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\asf\avr32\drivers\tc\tc.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\asf\avr32\utils\compiler.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\asf\avr32\utils\parts.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\asf\avr32\utils\preprocessor\mrepeat.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\asf\avr32\utils\preprocessor\preprocessor.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\asf\avr32\utils\preprocessor\stringz.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\asf\avr32\utils\preprocessor\tpaste.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\asf\avr32\utils\startup\startup_uc3.S">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\gcc_builtin.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\software_version.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\up_app\a_lib.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\up_app\a_lib.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\up_app\a_lib_internal.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\up_crypto\curve25519_donna.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\up_crypto\curve25519_donna.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\up_crypto\sha1.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\up_crypto\sha1.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\up_crypto\up_crypto.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\up_crypto\up_crypto.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\up_crypto\up_crypto_init.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\up_dstar\ambe.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\up_dstar\ambe.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\up_dstar\ambe_q.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\up_dstar\ambe_q.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\up_dstar\audio_q.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\up_dstar\audio_q.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\up_dstar\dcs.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\up_dstar\dcs.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\up_dstar\dstar.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\up_dstar\dstar.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\up_dstar\gps.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\up_dstar\gps.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\up_dstar\phycomm.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\up_dstar\phycomm.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\up_dstar\rtclock.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\up_dstar\rtclock.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\up_dstar\rx_dstar_crc_header.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\up_dstar\rx_dstar_crc_header.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\up_dstar\fixpoint_math.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\up_dstar\fixpoint_math.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\up_dstar\settings.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\up_dstar\settings.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\up_dstar\sw_update.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\up_dstar\sw_update.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\up_dstar\txtask.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\up_dstar\txtask.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\up_dstar\txtest.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\up_dstar\txtest.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\up_dstar\vdisp.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\up_dstar\vdisp.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\up_dstar\vdispfont.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\up_io\eth.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\up_io\eth.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\up_io\eth_txmem.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\up_io\eth_txmem.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\up_io\lcd.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\up_io\lcd.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\up_io\sdcard.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\up_io\sdcard.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\up_io\serial2.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\up_io\serial2.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\up_io\wm8510.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\up_io\wm8510.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\up_net\arp.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\up_net\arp.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\up_net\dhcp.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\up_net\dhcp.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\up_net\dns.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\up_net\dns.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\up_net\ipneigh.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\up_net\ipneigh.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\up_net\ipv4.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\up_net\ipv4.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\up_net\lldp.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\up_net\lldp.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\up_net\snmp.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\up_net\snmp.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\up_net\snmp_data.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\asf\avr32\utils\startup\trampoline_uc3.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\asf\avr32\utils\status_codes.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\asf\common\boards\board.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\asf\common\boards\user_board\init.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\asf\common\boards\user_board\user_board.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\asf\common\utils\interrupt.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\asf\common\utils\interrupt\interrupt_avr32.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\config\conf_board.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\FreeRTOSConfig.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\FreeRTOSV6.1.1\include\croutine.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\FreeRTOSV6.1.1\include\FreeRTOS.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\FreeRTOSV6.1.1\include\list.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\FreeRTOSV6.1.1\include\mpu_wrappers.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\FreeRTOSV6.1.1\include\portable.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\FreeRTOSV6.1.1\include\projdefs.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\FreeRTOSV6.1.1\include\queue.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\FreeRTOSV6.1.1\include\semphr.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\FreeRTOSV6.1.1\include\StackMacros.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\FreeRTOSV6.1.1\include\task.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\FreeRTOSV6.1.1\list.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\FreeRTOSV6.1.1\portable\GCC\AVR32_UC3\port.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\FreeRTOSV6.1.1\portable\GCC\AVR32_UC3\portmacro.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\FreeRTOSV6.1.1\portable\MemMang\heap_2.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\FreeRTOSV6.1.1\queue.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\FreeRTOSV6.1.1\tasks.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\main.c">
+      <SubType>compile</SubType>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="src\" />
+    <Folder Include="src\asf\" />
+    <Folder Include="src\asf\avr32\" />
+    <Folder Include="src\asf\avr32\drivers\" />
+    <Folder Include="src\asf\avr32\drivers\cpu\" />
+    <Folder Include="src\asf\avr32\drivers\cpu\cycle_counter\" />
+    <Folder Include="src\asf\avr32\drivers\flashc\" />
+    <Folder Include="src\asf\avr32\drivers\gpio\" />
+    <Folder Include="src\asf\avr32\drivers\intc\" />
+    <Folder Include="src\asf\avr32\drivers\pm\" />
+    <Folder Include="src\asf\avr32\drivers\tc\" />
+    <Folder Include="src\asf\avr32\utils\" />
+    <Folder Include="src\asf\avr32\utils\preprocessor\" />
+    <Folder Include="src\asf\avr32\utils\startup\" />
+    <Folder Include="src\asf\common\" />
+    <Folder Include="src\asf\common\boards\" />
+    <Folder Include="src\asf\common\boards\user_board\" />
+    <Folder Include="src\asf\common\utils\" />
+    <Folder Include="src\asf\common\utils\interrupt\" />
+    <Folder Include="src\config\" />
+    <Folder Include="src\FreeRTOSV6.1.1" />
+    <Folder Include="src\FreeRTOSV6.1.1\include" />
+    <Folder Include="src\FreeRTOSV6.1.1\portable" />
+    <Folder Include="src\FreeRTOSV6.1.1\portable\GCC" />
+    <Folder Include="src\FreeRTOSV6.1.1\portable\GCC\AVR32_UC3" />
+    <Folder Include="src\FreeRTOSV6.1.1\portable\MemMang" />
+    <Folder Include="src\up_crypto" />
+    <Folder Include="src\up_app" />
+    <Folder Include="src\up_dstar" />
+    <Folder Include="src\up_net" />
+    <Folder Include="src\up_io" />
+  </ItemGroup>
+  <Import Project="$(AVRSTUDIO_EXE_PATH)\\Vs\\AvrGCC32.targets" />
+>>>>>>> 912507ccf0bd075faabbf3c2953354c89a6c2d4b
 </Project>
