@@ -2,6 +2,8 @@
 
 Copyright (C) 2011,2012   Michael Dirska, DL1BFF (dl1bff@mdx.de)
 
+Copyright (C) 2013   Artem Prilutskiy, R3ABM (r3abm@dstar.su)
+
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 2 of the License, or
@@ -43,18 +45,20 @@ extern unsigned char ipv4_dns_sec[4];
 
 extern const uint8_t ipv4_zero_addr[4];
 
-#define UDP_PACKET_SIZE(a) (14 + 20 + 8 + (a))
-
-#define NUM_UDP_SOCKETS   5
-
-extern unsigned short udp_socket_ports[NUM_UDP_SOCKETS];
+#define UDP_PACKET_SIZE(a)  (14 + 20 + 8 + (a))
+#define UDP_PAYLOAD_OFFSET  42
 
 #define UDP_SOCKET_DHCP		0
 #define UDP_SOCKET_SNMP		1
 #define UDP_SOCKET_DNS		2
 #define UDP_SOCKET_DCS		3
 #define UDP_SOCKET_NTP		4
+#define UDP_SOCKET_RP2C		5
 
+#define NUM_UDP_SOCKETS   6
+
+typedef void (*udp4_handler)(const uint8_t* data, int length, const uint8_t* address, uint16_t src_port, uint16_t dst_port);
+void udp4_set_socket(int socket, unsigned short port, udp4_handler callback);
 
 void ipv4_input (const uint8_t * p, int len, const uint8_t * eth_header);
 

@@ -2,6 +2,8 @@
 
 Copyright (C) 2011,2012   Michael Dirska, DL1BFF (dl1bff@mdx.de)
 
+Copyright (C) 2013   Artem Prilutskiy, R3ABM (r3abm@dstar.su)
+
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 2 of the License, or
@@ -29,7 +31,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "queue.h"
 #include "task.h"
 
-
 #include <asf.h>
 
 #include "board.h"
@@ -44,25 +45,25 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "up_dstar/dstar.h"
 
-#include "snmp.h"
 #include "up_dstar/dcs.h"
 #include "up_net/dhcp.h"
-#include "dns.h"
 
 #include "up_dstar/vdisp.h"
 #include "up_crypto/up_crypto.h"
 
-#include "ntp.h"
+struct udp_socket
+{
+  unsigned short port;
+  udp4_handler callback;
+};
+
+static struct udp_socket sockets[NUM_UDP_SOCKETS];
 
 unsigned char ipv4_addr[4];
-
 unsigned char ipv4_netmask[4];
-
 unsigned char ipv4_gw[4];
-
 unsigned char ipv4_ntp[4];
 unsigned char ipv4_syslog[4];
-
 unsigned char ipv4_dns_pri[4];
 unsigned char ipv4_dns_sec[4];
 
@@ -80,6 +81,11 @@ static const uint8_t echo_reply_header[38] = {
 	0x00, 0x00, 0x00, 0x00   // Type 0 (echo reply) Code 0
 };	
 
+void udp4_set_socket(int socket, unsigned short port, udp4_handler callback)
+{
+  sockets[socket].port = port;
+  sockets[socket].callback = callback;  
+}
 
 static int ipv4_header_checksum( const uint8_t * p, int header_len )
 {
@@ -193,8 +199,6 @@ static void icmpv4_input (const uint8_t * p, int len, const uint8_t * ipv4_heade
 	if (sum != ((unsigned short *) p) [1])  // checksumme falsch
 		return;
 	
-	
-	
 	switch (p[0])
 	{
 		case 8:  // echo request
@@ -241,33 +245,6 @@ void ipv4_udp_prepare_packet( eth_txmem_t * packet, const uint8_t * dest_ipv4_ad
 }
 
 
-static void snmp_send_reply (const uint8_t * p, int len, const uint8_t * ipv4_header)
-{
-	int data_length = 0;
-	
-	eth_txmem_t * packet = snmp_process_request( p + 8, len, & data_length );
-	
-	if (packet == NULL)  // something went wrong
-		return; 
-	
-	if (data_length <= 0)  // error occurred
-	{
-		eth_txmem_free(packet);
-		return; 
-	}		
-		
-	
-	int src_port = (p[2] << 8) | p[3];
-	int dest_port = (p[0] << 8) | p[1];
-	
-	
-	ipv4_udp_prepare_packet(packet, ipv4_header + 12, data_length, src_port, dest_port);
-	
-	udp4_calc_chksum_and_send(packet,  ipv4_header + 12);
-	
-}
-
-
 static int udp4_header_checksum( const uint8_t * p)
 {
 	int sum = 0;
@@ -282,8 +259,6 @@ static int udp4_header_checksum( const uint8_t * p)
 
 	int udp_length = ((unsigned short *) (p)) [12];
 	sum += udp_length;
-
-
 
 	for (i=0; i < (udp_length >> 1); i++)
 	{
@@ -313,43 +288,31 @@ static int udp4_header_checksum( const uint8_t * p)
 	return sum;
 }
 
-unsigned short udp_socket_ports[NUM_UDP_SOCKETS] = { 68, 161, 0, 0 };
-	
-
 int udp_get_new_srcport(void)
 {
 	int p;
+	int in_use = 0;
 	
-	while (1)
+	do
 	{
 		p = crypto_get_random_16bit();
 		
 		if (p < 1024)
-		{
 			p += 11000;
-		}
-	
-		int already_in_use = 0;
-		int i;
-		for (i=0; i < NUM_UDP_SOCKETS; i++)
-		{
-			if (p == udp_socket_ports[i])
-			{
-				already_in_use = 1;
-			}
-		}
-		
-		if (already_in_use == 0)
-			break;
+
+		for (int i = 0; i < NUM_UDP_SOCKETS; i++)
+			if (p == sockets[i].port)
+				in_use = 1;
 	}
-	
+	while (in_use != 0);
+
 	return p;
 }	
 	
 	
 static void udp_input (const uint8_t * p, int len, const uint8_t * ipv4_header)
 {
-	// int src_port = (p[0] << 8) | p[1];
+	int src_port = (p[0] << 8) | p[1];
 	int dest_port = (p[2] << 8) | p[3];
 	int udp_length = (p[4] << 8) | p[5];
 	
@@ -370,46 +333,14 @@ static void udp_input (const uint8_t * p, int len, const uint8_t * ipv4_header)
 	if (dest_port == 0)  // 0 is a special value (socket not connected)
 		return ;	
 	
-	int i;
-	
-	for (i=0; i < NUM_UDP_SOCKETS; i++)
-	{
-		if (dest_port == udp_socket_ports[i])
-		{
-			switch (i)
-			{
-			case UDP_SOCKET_SNMP:
-				snmp_send_reply ( p, udp_length - 8, ipv4_header );
-				break;
-				
-			case UDP_SOCKET_DHCP:
-				if (dhcp_is_ready() == 0)  // if DHCP is not completed yet
-				{
-					dhcp_input_packet( p + 8, udp_length - 8 );
-				}
-				break;
-				
-			case UDP_SOCKET_DCS:
-				dcs_input_packet( p + 8, udp_length - 8, ipv4_header + 12 /* src addr */);
-				break;
-				
-			case UDP_SOCKET_DNS:
-				dns_input_packet( p + 8, udp_length - 8, ipv4_header + 12 /* src addr */);
-				break;
-			
-			case UDP_SOCKET_NTP:
-				ntp_handle_packet(p + 8, udp_length - 8, ipv4_header + 12 /* src addr */);
-				break;
-			}
-			
-			return;
-		}		 
-	}		
-	   
-	
+	for (int i = 0; i < NUM_UDP_SOCKETS; i++)
+		if ((sockets[i].port == dest_port) &&
+        (sockets[i].callback != NULL))
+    {
+      sockets[i].callback(p + 8, udp_length - 8, ipv4_header + 12, src_port, dest_port);
+      break;
+    }    
 }	
-	
-	
 
 
 void ipv4_input (const uint8_t * p, int len, const uint8_t * eth_header)
@@ -543,7 +474,9 @@ void ipv4_init(void)
 	memcpy(ipv4_dns_sec, ipv4_zero_addr, sizeof ipv4_zero_addr); // no secondary dns
 	memcpy(ipv4_ntp, ipv4_zero_addr, sizeof ipv4_zero_addr); // no NTP server
 	memcpy(ipv4_syslog, ipv4_zero_addr, sizeof ipv4_zero_addr); // no syslog server
-	
+
+  memset(sockets, 0, sizeof(sockets));
+
 	ipneigh_init(); // delete neighbor cache
 }
 

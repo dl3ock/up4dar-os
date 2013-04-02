@@ -25,8 +25,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #define TIMER_SLOT_DNS_CACHE    0
 #define TIMER_SLOT_APRS_BEACON  1
+#define TIMER_SLOT_RP2C         2
 
-#define TIMER_SLOT_COUNT        2
+#define TIMER_SLOT_COUNT        3
 
 typedef void (*timer_handler)(int slot);
 

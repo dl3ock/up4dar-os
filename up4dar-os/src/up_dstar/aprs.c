@@ -39,23 +39,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define UNDEFINED_ALTITUDE       INT64_MIN
 #define DATA_VALIDITY_INTERVAL   600
 
-#define APRS_BUFFER_SIZE         (100 + DPRS_MSG_LENGTH)
-#define APRS_IS_BUFFER_SIZE      (64 + APRS_BUFFER_SIZE)
-#define APRS_POSITION_LENGTH     34
-#define DPRS_SIGN_LENGTH         10
+#define APRS_BUFFER_SIZE      (100 + DPRS_MSG_LENGTH)
+#define APRS_IS_BUFFER_SIZE   (64 + APRS_BUFFER_SIZE)
+#define APRS_POSITION_LENGTH  34
+#define DPRS_SIGN_LENGTH      10
 
-#define CRC_POSITION             5
-#define TNC2_POSITION            DPRS_SIGN_LENGTH
+#define CRC_POSITION          5
+#define TNC2_POSITION         DPRS_SIGN_LENGTH
 
-#define SLOW_DATA_CHUNK_SIZE     5
+#define SLOW_DATA_CHUNK_SIZE  5
 
-#define APRS_SEND_ONLY_PORT      8080
-#define ETHERNET_PAYLOAD_OFFSET  42
+#define APRS_SEND_ONLY_PORT   8080
 
-#define OPERATIONAL_BUFFER       0
-#define OUTGOING_BUFFER          1
+#define OPERATIONAL_BUFFER    0
+#define OUTGOING_BUFFER       1
 
-#define BUFFER_COUNT             2
+#define BUFFER_COUNT          2
 
 struct buffer
 {
@@ -254,7 +253,7 @@ void process_position_fix_data(const char** parameters)
 void aprs_process_gps_data(const char** parameters, size_t count)
 {
   if ((count >= 12) &&
-      (memcmp(parameters[0]+2, "RMC", 4) == 0) &&
+      (memcmp(parameters[0] + 2, "RMC", 4) == 0) &&
       (*parameters[2] == 'A') &&
       (xSemaphoreTake(lock, portMAX_DELAY) == pdTRUE))
   {
@@ -264,7 +263,7 @@ void aprs_process_gps_data(const char** parameters, size_t count)
     return;
   }
   if ((count >= 15) &&
-      (memcmp(parameters[0]+2, "GGA", 4) == 0) &&
+      (memcmp(parameters[0] + 2, "GGA", 4) == 0) &&
       (*parameters[6] != '0') &&
       (xSemaphoreTake(lock, portMAX_DELAY) == pdTRUE))
   {
@@ -323,7 +322,7 @@ void calculate_aprs_password(char* password)
 void send_network_report()
 {
   uint8_t address[4];
-  if ((dhcp_is_ready() != 0) && 
+  if ((dhcp_is_ready() != 0) &&
       (dns_cache_get_address(DNS_CACHE_SLOT_APRS, address) != 0) &&
       (xSemaphoreTake(lock, portMAX_DELAY) == pdTRUE))
   {
@@ -341,7 +340,7 @@ void send_network_report()
       return;
     }
 
-    uint8_t* data = packet->data + ETHERNET_PAYLOAD_OFFSET;
+    uint8_t* data = packet->data + UDP_PAYLOAD_OFFSET;
 
     memset(data, 0, APRS_IS_BUFFER_SIZE);
 

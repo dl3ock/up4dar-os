@@ -202,9 +202,7 @@ static int dns_send_req(int req_type)
 	if (dns_udp_local_port == 0)
 	{
 		dns_udp_local_port = udp_get_new_srcport();
-		
-		udp_socket_ports[UDP_SOCKET_DNS] = dns_udp_local_port;
-		
+    udp4_set_socket(UDP_SOCKET_DNS, dns_udp_local_port, dns_input_packet);
 		dns_req_id = crypto_get_random_16bit();
 	}
 	

@@ -1,14 +1,11 @@
-
 /*
-
-Copyright (C) 2013   Michael Dirska, DL1BFF (dl1bff@mdx.de)
 
 Copyright (C) 2013   Artem Prilutskiy, R3ABM (r3abm@dstar.su)
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 2 of the License, or
-(at your option) any later version.
+at your option) any later version.
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -20,13 +17,23 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#ifndef SLOW_DATA_H
-#define SLOW_DATA_H
+#ifndef RP2C_H
+#define RO2C_H
 
 #include "FreeRTOS.h"
+#include "gcc_builtin.h"
 
-uint8_t get_slow_data_chunk(uint8_t* data);
-void get_slow_data_block(uint8_t* data, uint8_t frame, size_t duration);
-void build_slow_data(uint8_t* data, char last, uint8_t frame, size_t duration);
+#define RP2C_NUMBER_LAST_FRAME    0x40
+#define RP2C_NUMBER_RADIO_HEADER  0x80
+#define RP2C_NUMBER_DIGITAL_DATA  0xC0
+#define RP2C_NUMBER_MASK          0x3f
+
+int rp2c_is_connected();
+
+void rp2c_send_heard(const char* call, const char* repeater1);
+void rp2c_send_dv_data(uint16_t session, uint16_t sequence, const char* buffer, int length);
+// Note: Gateway software determines type of DV data (radio header of frame) by the sequence number and length
+
+void rp2c_init();
 
 #endif

@@ -32,12 +32,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "up_dstar/vdisp.h"
 #include "up_dstar/sw_update.h"
 
-#define ETHERNET_PAYLOAD_OFFSET  42
-#define SYSLOG_UDP_PORT          514
+#define SYSLOG_UDP_PORT    514
 
-#define PRIORITY_POSITION        1
-#define ADDRESS_POSITION         9
-#define TEMPLATE_LENGTH          (sizeof(template) - 1)
+#define PRIORITY_POSITION  1
+#define ADDRESS_POSITION   9
+#define TEMPLATE_LENGTH    (sizeof(template) - 1)
 
 const char template[] = "<000>1 - 000.000.000.000 UP4DAR - - - - ";
 
@@ -61,7 +60,7 @@ void syslog(char facility, char severity, const char* message)
   if (packet == NULL)
     return;
 
-  uint8_t* buffer = packet->data + ETHERNET_PAYLOAD_OFFSET;
+  uint8_t* buffer = packet->data + UDP_PAYLOAD_OFFSET;
   memcpy(buffer, template, sizeof(template));
   memcpy(buffer + TEMPLATE_LENGTH, message, length);
 

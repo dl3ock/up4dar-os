@@ -54,6 +54,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "up_net/snmp.h"
 #include "up_net/snmp_data.h"
+#include "up_net/snmp_io.h"
 
 #include "up_net/ipv4.h"
 
@@ -82,6 +83,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "software_version.h"
 #include "up_dstar/sw_update.h"
 #include "up_crypto/up_crypto.h"
+#include "up_dstar/txtask.h"
 
 #include "up_dstar/slow_data.h"
 
@@ -96,7 +98,7 @@ U32 errorCounter = 0;
 audio_q_t  audio_tx_q;
 audio_q_t  audio_rx_q;
 
-ambe_q_t microphone;
+static ambe_q_t microphone;
 
 static int32_t voltage = 0;
 
@@ -151,6 +153,7 @@ static void set_pwm(void)
 
 */
 
+/*
 #define DLE 0x10
 #define STX 0x02
 #define ETX 0x03
@@ -182,12 +185,13 @@ static void send_cmd(const char* Befehl, const short size){
 	phyCommSend(buf, ind);
 }
 
+*/
 
 static const char tx_on[1] = {0x10};
-static char header[40];
+//static char header[40];
 
-static char send_voice[11];
-static char send_data [ 4];
+//static char send_voice[11];
+//static char send_data [ 4];
 
 // static const char YOUR[9] = "CQCQCQ  ";
 // static const char RPT2[9] = "DB0DF  G";
@@ -196,176 +200,15 @@ static char send_data [ 4];
 // static const char MY2[5]  = "    ";
 
 // static int phy_frame_counter = 0;
-static int txmsg_counter = 0;
+static int tx_counter = 0;
+//static int txmsg_counter = 0;
 
 static const char direct_callsign[8] = "DIRECT  ";
-
-static void phy_start_tx(void)
-{
-
-	// Schalte UP4DAR auf Senden um
-	
-    send_cmd(tx_on, 1);
-	
-	// Bereite einen Header vor
-	
-	header[0] = 0x20;
-	header[1] = (SETTING_CHAR(C_DV_DIRECT) == 1) ? 0 :	// "1st control byte"
-				  (1 << 6)	// Setze den Repeater-Flag
-				;
-				
-	
-	
-	header[2] = 0x0;				// "2nd control byte"
-	header[3] = 0x0;				// "3rd control byte"
-	
-	for (short i=0; i<CALLSIGN_LENGTH; ++i){
-		if (SETTING_CHAR(C_DV_DIRECT) == 1)
-		{
-			header[4+i] = direct_callsign[i];
-		}
-		else
-		{
-			header[4+i] = settings.s.rpt2[ ((SETTING_CHAR(C_DV_USE_RPTR_SETTING) - 1)*CALLSIGN_LENGTH) + i];
-		}		
-	}
-	
-	for (short i=0; i<CALLSIGN_LENGTH; ++i){
-		if (SETTING_CHAR(C_DV_DIRECT) == 1)
-		{
-			header[12+i] = direct_callsign[i];
-		}
-		else
-		{
-			header[12+i] = settings.s.rpt1[ ((SETTING_CHAR(C_DV_USE_RPTR_SETTING) - 1)*CALLSIGN_LENGTH) + i];
-		}
-	}
-	
-	for (short i=0; i<CALLSIGN_LENGTH; ++i){
-		header[20+i] = settings.s.urcall[ ((SETTING_CHAR(C_DV_USE_URCALL_SETTING  ) - 1)*CALLSIGN_LENGTH) + i];
-	}
-	
-	for (short i=0; i<CALLSIGN_LENGTH; ++i){
-		header[28+i] = settings.s.my_callsign[i];
-	}
-	
-	for (short i=0; i<CALLSIGN_EXT_LENGTH; ++i){
-		header[36+i] = settings.s.my_ext[i];
-	}
-	
-	// Bis zu 70ms kann man sich Zeit lassen, bevor die Header-Daten uebergeben werden.
-	// Die genaue Wartezeit ist natruerlich von TX-DELAY abh‰ngig.
-	//usleep(70000);
-	
-	// vTaskDelay (50); // 50ms
-	
-	send_cmd(header, 40);
-	
-	// phy_frame_counter = 0;
-	txmsg_counter = 0;
-}
-
-
-static int slow_data_count;
-static uint8_t slow_data[5];
-
-// const char dstar_tx_msg[20] = "Michael, Berlin, D23";
-// --------------------------- 12345678901234567890
-
-static void send_phy ( const unsigned char * d, char phy_frame_counter )
-{
-	send_voice[0] = 0x21;
-	send_voice[1] = 0x01;
-	for (short k=0; k<9; ++k)
-		send_voice[2+k] = d[k];
-	send_cmd(send_voice, 11);
-
-	if (phy_frame_counter > 0)
-	{
-		send_data[0] = 0x22;
-		// Next code should be replaced with this line:
-		// build_slow_data(send_data + 1, 0, phy_frame_counter, tx_counter)
-		
-		if ((txmsg_counter == 0) && (phy_frame_counter >= 1) && (phy_frame_counter <= 8))
-		{
-			int i = (phy_frame_counter - 1) >> 1;
-			if (phy_frame_counter & 1)
-			{
-				send_data[1] = 0x40 + i;
-				send_data[2] = settings.s.txmsg[ i * 5 + 0 ];
-				send_data[3] = settings.s.txmsg[ i * 5 + 1 ];
-			}
-			else
-			{
-				send_data[1] = settings.s.txmsg[ i * 5 + 2 ];
-				send_data[2] = settings.s.txmsg[ i * 5 + 3 ];
-				send_data[3] = settings.s.txmsg[ i * 5 + 4 ];
-			}
-		}
-		else
-		{
-				if (phy_frame_counter & 1)
-				{
-					slow_data_count = get_slow_data_chunk(slow_data);
-					
-					if (slow_data_count == 0)
-					{
-						send_data[1] = 0x66;
-						send_data[2] = 0x66;
-						send_data[3] = 0x66;
-					}
-					else
-					{
-						send_data[1] = (0x30 + slow_data_count);
-						send_data[2] = slow_data[ 0 ];
-						send_data[3] = slow_data[ 1 ];
-					}
-				}
-				else
-				{
-					if (slow_data_count <= 2)
-					{
-						send_data[1] = 0x66;
-						send_data[2] = 0x66;
-						send_data[3] = 0x66;
-					}
-					else
-					{
-						send_data[1] = slow_data[ 2 ];
-						send_data[2] = slow_data[ 3 ];
-						send_data[3] = slow_data[ 4 ];
-					}
-				}
-			
-		}
-		
-		send_cmd(send_data, 4);
-	}
-	
-	// phy_frame_counter++;
-	
-	if (phy_frame_counter >= 20)
-	{
-		// phy_frame_counter = 0;
-		txmsg_counter ++;
-		if (txmsg_counter >= 60)
-		{
-			txmsg_counter = 0;
-		}
-	}		
-}	
-	
-
-
-
-
 
 
 #define NUMBER_OF_KEYS  6
 
 static short touchKeyCounter[NUMBER_OF_KEYS] = { 0,0,0,0,0,0 };
-	
-	
 
 	
 int debug1;
@@ -488,7 +331,7 @@ static void vButtonTask( void *pvParameters )
 }
 		
 		
-		
+/*
 
 static void set_phy_parameters(void)
 {
@@ -507,7 +350,7 @@ static void set_phy_parameters(void)
 	value = SETTING_SHORT(S_PHY_LENGTHOFVW) & 0xFF;
 	snmp_set_phy_sysparam(6, &value, 1);
 }
-
+*/
 
 static int initialHeapSize;
 		
@@ -548,7 +391,8 @@ static void vServiceTask( void *pvParameters )
 		vd_prints_xy(VDISP_DEBUG_LAYER, 108, 28, VDISP_FONT_4x6, 0, tmp_buf );
 		vdisp_i2s( tmp_buf, 5, 10, 0, serial_rx_ok );
 		vd_prints_xy(VDISP_DEBUG_LAYER, 108, 34, VDISP_FONT_4x6, 0, tmp_buf );	
-		vdisp_i2s( tmp_buf, 5, 10, 0, serial_timeout_error );
+		// vdisp_i2s( tmp_buf, 5, 10, 0, serial_timeout_error );
+		vdisp_i2s( tmp_buf, 5, 10, 0, dstar_pos_not_correct );
 		vd_prints_xy(VDISP_DEBUG_LAYER, 108, 40, VDISP_FONT_4x6, 0, tmp_buf );
 		vdisp_i2s( tmp_buf, 5, 10, 0, serial_putc_q_full );
 		vd_prints_xy(VDISP_DEBUG_LAYER, 108, 46, VDISP_FONT_4x6, 0, tmp_buf );
@@ -676,8 +520,9 @@ static void vServiceTask( void *pvParameters )
 		
 			if (dcs_mode != last_dcs_mode)
 			{
-				vdisp_clear_rect(0,0,128,64);
+				// vdisp_clear_rect(0,0,128,64);
 			
+				/*
 				if (dcs_mode != 0)
 				{
 					dstarChangeMode(1); // Service mode
@@ -688,6 +533,7 @@ static void vServiceTask( void *pvParameters )
 					set_phy_parameters();
 					dstarChangeMode(2); // single user mode
 				}
+				*/
 			
 				last_dcs_mode = dcs_mode;
 			}
@@ -736,7 +582,7 @@ static void vRXTXEthTask( void *pvParameters )
 
 
 
-
+/*
 
 
 static void vTXTask( void *pvParameters )
@@ -801,8 +647,11 @@ static void vTXTask( void *pvParameters )
 				
 				rtclock_reset_tx_ticks();
 				curr_tx_ticks = 0;
+<<<<<<< HEAD
 				
 				aprs_reset();
+=======
+>>>>>>> 912507ccf0bd075faabbf3c2953354c89a6c2d4b
 			}
 			else
 			{
@@ -846,8 +695,18 @@ static void vTXTask( void *pvParameters )
 					else
 					{
 						send_phy ( dcs_ambe_data, frame_counter );
-					}						
+					}		
 					
+					curr_tx_ticks += 20; // send AMBE data every 20ms			
+					
+					long tdiff = curr_tx_ticks - rtclock_get_tx_ticks();
+					
+					if (tdiff > 0)
+					{
+						vTaskDelay(tdiff); 
+					}
+					
+<<<<<<< HEAD
 					curr_tx_ticks += 20; // send AMBE data every 20ms
 					
 					long tdiff = curr_tx_ticks - rtclock_get_tx_ticks();
@@ -857,6 +716,8 @@ static void vTXTask( void *pvParameters )
 						vTaskDelay(tdiff);
 					}
 					
+=======
+>>>>>>> 912507ccf0bd075faabbf3c2953354c89a6c2d4b
 				}
 			}
 			break;
@@ -933,7 +794,7 @@ static void vTXTask( void *pvParameters )
 	}		
 	
 }	
-
+*/
 
 static xQueueHandle dstarQueue;
 
@@ -1062,8 +923,7 @@ int main (void)
 	
 	wm8510Init( & audio_tx_q, & audio_rx_q );
 	
-	xTaskCreate( vTXTask, (signed char *) "TX", 300, ( void * ) 0, standard_TASK_PRIORITY, ( xTaskHandle * ) NULL );
-
+	// xTaskCreate( vTXTask, (signed char *) "TX", 300, ( void * ) 0, standard_TASK_PRIORITY, ( xTaskHandle * ) NULL );
 
 	gps_init( externalComPort );
 	
@@ -1073,7 +933,8 @@ int main (void)
 	
 	
 	crypto_init(& microphone);
-	
+
+  snmp_io_init();
 	dns_init();
 	
 	if (eth_txmem_init() != 0)

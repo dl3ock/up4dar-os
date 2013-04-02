@@ -431,6 +431,12 @@
     <Compile Include="src\up_dstar\phycomm.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="src\up_dstar\rp2c.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\up_dstar\rp2c.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="src\up_dstar\rtclock.c">
       <SubType>compile</SubType>
     </Compile>
@@ -522,6 +528,12 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\up_net\arp.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\up_net\snmp_io.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\up_net\snmp_io.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\up_net\dhcp.c">

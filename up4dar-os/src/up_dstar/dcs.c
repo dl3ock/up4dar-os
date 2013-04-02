@@ -85,7 +85,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define SERVER_TYPE_TST             1
 #define SERVER_TYPE_DEXTRA          2
 
-#define ETHERNET_PAYLOAD_OFFSET     42  // Skip IP + UDP headers
+#define UDP_PAYLOAD_OFFSET     42  // Skip IP + UDP headers
 
 const char dcs_html_info[] =
   "<table border=\"0\" width=\"95%\"><tr>"
@@ -190,7 +190,7 @@ void dcs_set_dns_name()
 void dcs_set_source_port()
 {
   dcs_udp_local_port = (current_server_type == SERVER_TYPE_DEXTRA) ? DEXTRA_UDP_PORT : udp_get_new_srcport();
-  udp_socket_ports[UDP_SOCKET_DCS] = dcs_udp_local_port;
+  udp4_set_socket(UDP_SOCKET_DCS, dcs_udp_local_port, dcs_input_packet);
 }
 
 void dcs_service()
@@ -208,7 +208,7 @@ void dcs_service()
 
       dcs_timeout_timer = 2; // 1 second
       dcs_state = DCS_WAIT;
-      udp_socket_ports[UDP_SOCKET_DCS] = 0; // stop receiving frames
+      udp4_set_socket(UDP_SOCKET_DCS, 0, NULL); // stop receiving frames
       vd_prints_xy(VDISP_DEBUG_LAYER, 104, 8, VDISP_FONT_6x8, 0, "NOWD");
       break;
 
@@ -228,7 +228,7 @@ void dcs_service()
 
       dcs_timeout_timer = 20; // 10 seconds
       dcs_state = DCS_WAIT;
-      udp_socket_ports[UDP_SOCKET_DCS] = 0; // stop receiving frames
+      udp4_set_socket(UDP_SOCKET_DCS, 0, NULL); // stop receiving frames
       vd_prints_xy(VDISP_DEBUG_LAYER, 104, 8, VDISP_FONT_6x8, 0, "RQTO");
       break;
 
@@ -247,7 +247,7 @@ void dcs_service()
       }
 
       dcs_state = DCS_DISCONNECTED;
-      udp_socket_ports[UDP_SOCKET_DCS] = 0; // stop receiving frames
+      udp4_set_socket(UDP_SOCKET_DCS, 0, NULL); // stop receiving frames
       break;
 
     case DCS_DNS_REQ:
@@ -341,7 +341,7 @@ void dcs_off()
 
     default:
       dcs_state = DCS_DISCONNECTED;
-      udp_socket_ports[UDP_SOCKET_DCS] = 0; // stop receiving frames
+      udp4_set_socket(UDP_SOCKET_DCS, 0, NULL); // stop receiving frames
       break;
   }
 }
@@ -441,16 +441,15 @@ void copy_html_info(char* buffer)
   memcpy(buffer, dcs_html_info, sizeof(dcs_html_info));
 
   for (size_t index = 0; index < sizeof(dcs_html_info) - 11; index ++)
-  {
     if (buffer[index] == 'X')  // look for 'X'
     {
       // replace  X.0.00.00  with current software version
       version2string(buffer + index, software_version);
-      buffer[index + strlen(buffer + index)] = ' ';
-	  buffer[index + 10] = ' ';
+      for ( ; buffer[index] != '<'; index ++)
+        if (buffer[index] < ' ')
+          buffer[index] = ' ';
       break;
     }
-  }
 }
 
 void dcs_link_to(char module)
@@ -467,7 +466,7 @@ void dcs_link_to(char module)
   vd_prints_xy(VDISP_DEBUG_LAYER, 86, 0, VDISP_FONT_6x8, 1, buf);
   vd_prints_xy(VDISP_DEBUG_LAYER, 104, 8, VDISP_FONT_6x8, 0, "    ");
 
-  uint8_t* d = packet->data + ETHERNET_PAYLOAD_OFFSET;
+  uint8_t* d = packet->data + UDP_PAYLOAD_OFFSET;
 
   memcpy(d, settings.s.my_callsign, 7);
   d[7] = ' ';
@@ -494,7 +493,7 @@ void dcs_keepalive_response(int request_size)
   if (packet == NULL)
     return;
 
-  uint8_t* d = packet->data + ETHERNET_PAYLOAD_OFFSET;
+  uint8_t* d = packet->data + UDP_PAYLOAD_OFFSET;
 
   memcpy (d, settings.s.my_callsign, 7);
 
@@ -528,7 +527,7 @@ void send_xcs(int session_id, char last_frame, char frame_counter)
   if (packet == NULL)
     return;
 
-  uint8_t * d = packet->data + ETHERNET_PAYLOAD_OFFSET;
+  uint8_t * d = packet->data + UDP_PAYLOAD_OFFSET;
 
   memcpy(d, "0001", 4);
 
@@ -574,7 +573,7 @@ void send_dextra_header(int session_id)
   if (packet == NULL)
     return;
 
-  uint8_t* d = packet->data + ETHERNET_PAYLOAD_OFFSET;
+  uint8_t* d = packet->data + UDP_PAYLOAD_OFFSET;
 
   // DSVT Header, 8 bytes
   memcpy(d, "DSVT", 4);
@@ -587,7 +586,7 @@ void send_dextra_header(int session_id)
   d[8] = 0x20; // Type = RP2C_TYPE_DIGITAL_VOICE
   d[9] = 0x00; // Repeater 2
   d[10] = 0x00; // Repeater 1
-  d[11] = 0x00; // Tarminal
+  d[11] = 0x00; // Terminal
 
   d[12] = (session_id >> 8) & 0xff;
   d[13] = session_id & 0xff;
@@ -620,7 +619,7 @@ void send_dextra_frame(int session_id, char last_frame, char frame_counter)
   if (packet == NULL)
     return;
 
-  uint8_t* d = packet->data + ETHERNET_PAYLOAD_OFFSET;
+  uint8_t* d = packet->data + UDP_PAYLOAD_OFFSET;
 
   // DSVT Header, 8 bytes
   memcpy(d, "DSVT", 4);
