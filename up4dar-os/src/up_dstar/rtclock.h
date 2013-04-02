@@ -43,16 +43,13 @@ void vApplicationTickHook( void );
 
 void rtclock_disp_xy(int x, int y, int dots, int display_seconds);
 unsigned long rtclock_get_ticks( void );
-<<<<<<< HEAD
 
 extern unsigned long volatile the_clock;
 void rtclock_set_time(unsigned long time);
-long rtclock_get_tx_ticks( void );
-void rtclock_reset_tx_ticks( void );
-=======
+
 long rtclock_get_tx_ticks( void );
 void rtclock_reset_tx_ticks( void );
 long rtclock_get_rx_ticks( void );
 void rtclock_reset_rx_ticks( void );
->>>>>>> 912507ccf0bd075faabbf3c2953354c89a6c2d4b
+
 #endif /* RTCLOCK_H_ */

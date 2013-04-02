@@ -186,22 +186,11 @@ int snmp_get_sw_update (int32_t arg, uint8_t * res, int * res_len, int maxlen)
 
 int snmp_get_sw_version (int32_t arg, uint8_t * res, int * res_len, int maxlen)
 {
-<<<<<<< HEAD
-	return snmp_encode_int(
-	software_version[1] * 10000 +
-	software_version[2] * 100 +
-	software_version[3], res, res_len, maxlen );
-}
-
-
-=======
 	return snmp_encode_int( 
 	  software_version[1] * 10000 + 
 	  software_version[2] * 100 + 
 	  software_version[3], res, res_len, maxlen );
 }
-
->>>>>>> 912507ccf0bd075faabbf3c2953354c89a6c2d4b
 
 #define PHY_VERSION_STRING_LEN 54
 

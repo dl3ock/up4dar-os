@@ -1,10 +1,8 @@
 /*
 
 Copyright (C) 2013   Michael Dirska, DL1BFF (dl1bff@mdx.de)
-<<<<<<< HEAD
+
 Copyright (C) 2013   Artem Prilutskiy, R3ABM (r3abm@dstar.su)
-=======
->>>>>>> 912507ccf0bd075faabbf3c2953354c89a6c2d4b
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -41,19 +39,13 @@ unsigned long volatile the_clock;
 static unsigned short rtclock_ticks;
 
 static long tx_ticks;
-<<<<<<< HEAD
-=======
 static long rx_ticks;
->>>>>>> 912507ccf0bd075faabbf3c2953354c89a6c2d4b
 
 void vApplicationTickHook( void )
 {
 	rtclock_ticks ++;
 	tx_ticks ++;
-<<<<<<< HEAD
-=======
 	rx_ticks ++;
->>>>>>> 912507ccf0bd075faabbf3c2953354c89a6c2d4b
 	
 	if (rtclock_ticks >= configTICK_RATE_HZ)
 	{
@@ -80,8 +72,6 @@ void rtclock_reset_tx_ticks( void )
 	tx_ticks = 0;
 }
 
-<<<<<<< HEAD
-=======
 long rtclock_get_rx_ticks( void )
 {
 	return rx_ticks;
@@ -91,7 +81,6 @@ void rtclock_reset_rx_ticks( void )
 {
 	rx_ticks = 0;
 }
->>>>>>> 912507ccf0bd075faabbf3c2953354c89a6c2d4b
 
 void rtclock_disp_xy(int x, int y, int dots, int display_seconds)
 {

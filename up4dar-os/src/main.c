@@ -200,131 +200,15 @@ static const char tx_on[1] = {0x10};
 // static const char MY2[5]  = "    ";
 
 // static int phy_frame_counter = 0;
-<<<<<<< HEAD
 static int tx_counter = 0;
-=======
 //static int txmsg_counter = 0;
->>>>>>> 912507ccf0bd075faabbf3c2953354c89a6c2d4b
 
 static const char direct_callsign[8] = "DIRECT  ";
 
-/*
-static void phy_start_tx(void)
-{
 
-	// Schalte UP4DAR auf Senden um
-	
-    send_cmd(tx_on, 1);
-	
-	// Bereite einen Header vor
-	
-	header[0] = 0x20;
-	header[1] = (SETTING_CHAR(C_DV_DIRECT) == 1) ? 0 :	// "1st control byte"
-				  (1 << 6)	// Setze den Repeater-Flag
-				;
-				
-	
-	
-	header[2] = 0x0;				// "2nd control byte"
-	header[3] = 0x0;				// "3rd control byte"
-	
-	for (short i=0; i<CALLSIGN_LENGTH; ++i){
-		if (SETTING_CHAR(C_DV_DIRECT) == 1)
-		{
-			header[4+i] = direct_callsign[i];
-		}
-		else
-		{
-			header[4+i] = settings.s.rpt2[ ((SETTING_CHAR(C_DV_USE_RPTR_SETTING) - 1)*CALLSIGN_LENGTH) + i];
-		}		
-	}
-	
-	for (short i=0; i<CALLSIGN_LENGTH; ++i){
-		if (SETTING_CHAR(C_DV_DIRECT) == 1)
-		{
-			header[12+i] = direct_callsign[i];
-		}
-		else
-		{
-			header[12+i] = settings.s.rpt1[ ((SETTING_CHAR(C_DV_USE_RPTR_SETTING) - 1)*CALLSIGN_LENGTH) + i];
-		}
-	}
-	
-	for (short i=0; i<CALLSIGN_LENGTH; ++i){
-		header[20+i] = settings.s.urcall[ ((SETTING_CHAR(C_DV_USE_URCALL_SETTING  ) - 1)*CALLSIGN_LENGTH) + i];
-	}
-	
-	for (short i=0; i<CALLSIGN_LENGTH; ++i){
-		header[28+i] = settings.s.my_callsign[i];
-	}
-	
-	for (short i=0; i<CALLSIGN_EXT_LENGTH; ++i){
-		header[36+i] = settings.s.my_ext[i];
-	}
-	
-	// Bis zu 70ms kann man sich Zeit lassen, bevor die Header-Daten uebergeben werden.
-<<<<<<< HEAD
-	// Die genaue Wartezeit ist natruerlich von TX-DELAY abh‰ngig.
-=======
-	// Die genaue Wartezeit ist natruerlich von TX-DELAY abhaengig.
->>>>>>> 912507ccf0bd075faabbf3c2953354c89a6c2d4b
-	//usleep(70000);
-	
-	// vTaskDelay (50); // 50ms
-	
-	send_cmd(header, 40);
-	
-	// phy_frame_counter = 0;
-	tx_counter = 0;
-}
-*/
-
-<<<<<<< HEAD
-
-=======
-//static int slow_data_count;
-//static uint8_t slow_data[5];
-
-// const char dstar_tx_msg[20] = "Michael, Berlin, D23";
-// --------------------------- 12345678901234567890
-/*
->>>>>>> 912507ccf0bd075faabbf3c2953354c89a6c2d4b
-static void send_phy ( const unsigned char * d, char phy_frame_counter )
-{
-	send_voice[0] = 0x21;
-	send_voice[1] = 0x01;
-	
-	for (short k=0; k<9; ++k)
-	{
-		send_voice[2+k] = d[k];
-	}
-			
-	send_cmd(send_voice, 11);
-
-	if (phy_frame_counter > 0)
-	{
-		send_data[0] = 0x22;
-		get_slow_data_block(send_data + 1, phy_frame_counter, tx_counter);
-		send_cmd(send_data, 4);
-	}
-	
-	tx_counter ++;
-}	
-	
-
-
-<<<<<<< HEAD
-=======
-*/
-
-
-
->>>>>>> 912507ccf0bd075faabbf3c2953354c89a6c2d4b
 #define NUMBER_OF_KEYS  6
 
 static short touchKeyCounter[NUMBER_OF_KEYS] = { 0,0,0,0,0,0 };
-	
-	
 
 	
 int debug1;
@@ -1039,10 +923,7 @@ int main (void)
 	
 	wm8510Init( & audio_tx_q, & audio_rx_q );
 	
-	txtask_init( & microphone );
-	
 	// xTaskCreate( vTXTask, (signed char *) "TX", 300, ( void * ) 0, standard_TASK_PRIORITY, ( xTaskHandle * ) NULL );
-
 
 	gps_init( externalComPort );
 	

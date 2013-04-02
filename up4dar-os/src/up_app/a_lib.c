@@ -410,16 +410,10 @@ void a_dispatch_key_event( int key_num, int key_event )
 #define REF_SELECTION_SPECIAL 6
 static char ref_selected_item = 0;
 static char ref_items[REF_NUM_ITEMS] = { 0, 0, 0, 0, 1, 2 };
-<<<<<<< HEAD
-static const char ref_item_max_val[REF_NUM_ITEMS] = { 1, 2, 9, 9, 9, 25 };
-static const char * const ref_modes[2] = { "D-STAR Modem",
-										   "IP Reflector"};
-=======
 static const char ref_item_max_val[REF_NUM_ITEMS] = { 2, 2, 9, 9, 9, 25 };
 static const char * const ref_modes[3] = { "D-STAR Modem",
 										   "IP Reflector",
 										   "Hotspot     "};
->>>>>>> 912507ccf0bd075faabbf3c2953354c89a6c2d4b
 static const char * const ref_types[3] = { "DCS", "TST", "XRF" };
 
 
